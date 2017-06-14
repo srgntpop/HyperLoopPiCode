@@ -9,6 +9,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # print "init success"
 
 # Connect the socket to the port where the server is listening
+# changed served address from '0.102' to '0.101' -SM
 server_address = ('192.168.0.101', 10004)
 
 #use command ifconfig on HOST computer to get IP addresss
@@ -22,19 +23,19 @@ ser = serial.Serial('/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_7543634343035
 #this commented out line used to work but stopped for whatever reason.
 #Google that line with fix if the new line doens't work anymore
 
-print "Got here"
 ser.write('0')
+print "Serial write successful"
+
 while True:
-    print "YOOOOOO World"
+    print "Entering loop"
     #ser.write('0')
-    read_serial1=ser.readline()
+    read_serial1 = ser.readline()
     print read_serial1
     if read_serial1.count(',') == 10:
-        data1 = read_serial1
-        print data1
+        print read_serial1
         sock.sendall(read_serial1)
         data = sock.recv(100)
-        for x in range(0, len(data)-1):
+        for x in range(0, len(data)): # for x in range(0, len(data)-1):
             if data[x:x+1] != '0':
                 print data
                 ser.write('1')
