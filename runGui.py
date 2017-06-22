@@ -1,5 +1,7 @@
-#!/usr/bin/python
-#this file is used to craete the the GUI
+# runGui.py
+
+# !/usr/bin/python
+#this file is used to create the GUI
 #This creates a server and displays the GUI
 from PyQt4.QtGui import * 
 from PyQt4.QtCore import * 
@@ -10,26 +12,32 @@ import socket
 import threading
 import gtk
 
-#pyuic4 GUI.ui -o GUI.py // run this after changing GUI
+#pyuic4 GUI.ui -o GUI.py # run this after changing GUI
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# put the localhost address for first argument 
+# localhost = 127.0.0.1
+server_address = ('', 10000) 
+# If the socket closes incorrectly, the port number will need to be
+# incremented becasue the previous port is still open
+
 # Bind the socket to the port
-server_address = ('', 10000) # If the socket closes incorrectly, the port number will need to be incremented becasue the previous port is still open
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 
 sock.listen(1) #accepts one connection
 
-
-#this tests the data we send to spaceX, you will need to test it on a seperate device instead of local host 
-UDP_IP = "localhost"#testing on my computer, change for later
+#this tests the data we send to spaceX, you will need to test it on a 
+#seperate device instead of local host 
+UDP_IP = "localhost" #testing on my computer, change for later
 UDP_PORT = 3000
 MESSAGE = "Hello, World!"
 sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 stopped = 0
 status = 0
+
 class MainWindow(QMainWindow, Ui_MainWindow):
 
 
@@ -40,14 +48,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         	self.pushButton_2.clicked.connect(self.button2_clicked)
         	threading.Thread(target=self.data_transfer).start()
         	
-        	#stops the pod
+    #stops the pod
 	def button_clicked(self):
 		self.pushButton.setText("THE POD HAS STOPPED")
 		global stopped 
 		stopped = 1
 		
 		
-		#When the pod is ready
+	#When the pod is ready
 	def button2_clicked(self):
 
 		self.label.raise_()
@@ -62,7 +70,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 			
 
-			#sends and recieves data and updates GUI
+	#sends and recieves data and updates GUI
 	def data_transfer(self):
 		global connection
 		connection, client_address = sock.accept()

@@ -1,3 +1,5 @@
+#newClient.py
+
 #!/usr/bin/env python
 import socket
 import sys
@@ -9,7 +11,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # print "init success"
 
 # Connect the socket to the port where the server is listening
-# changed served address from '0.102' to '0.101' -SM
+# the server address for client and host have to be same, not school wifi -docx
+# changed server address from '0.102' to '0.101' -SM
 server_address = ('192.168.0.101', 10004)
 
 #use command ifconfig on HOST computer to get IP addresss
