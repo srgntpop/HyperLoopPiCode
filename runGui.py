@@ -8,6 +8,11 @@
 # setup a tcp/ip connection with the pi, receive data with sock.accept/recv
 # setup udp conneciton with spacex, send data from gui to spacex
 
+
+# TODO:
+# -check localhost server_address (30) 
+# -might have to change 500 bytes received with recv (95)
+# -check UDP_IP = localhost, may need to change if localhost is used for TCP/IP (44)
 from PyQt4.QtGui import * 
 from PyQt4.QtCore import * 
 from GUIwithstart import Ui_MainWindow
