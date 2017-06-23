@@ -3,6 +3,11 @@
 # !/usr/bin/python
 #this file is used to create the GUI
 #This creates a server and displays the GUI
+
+# NETWORK STUFF: Pi, SpaceX, GUI communications
+# setup a tcp/ip connection with the pi, receive data with sock.accept/recv
+# setup udp conneciton with spacex, send data from gui to spacex
+
 from PyQt4.QtGui import * 
 from PyQt4.QtCore import * 
 from GUIwithstart import Ui_MainWindow
@@ -11,6 +16,7 @@ import sys
 import socket
 import threading
 import gtk
+
 
 #pyuic4 GUI.ui -o GUI.py # run this after changing GUI
 
@@ -33,6 +39,7 @@ sock.listen(1) #accepts one connection
 UDP_IP = "localhost" #testing on my computer, change for later
 UDP_PORT = 3000
 MESSAGE = "Hello, World!"
+#setup UDP connection
 sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 stopped = 0
@@ -73,18 +80,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 	#sends and recieves data and updates GUI
 	def data_transfer(self):
 		global connection
+		# wait for connection use accept() return open connection and client address
 		connection, client_address = sock.accept()
 		counter  = 0
 		global stopped
 		global status
 		while True:
 		    if stopped != 1:
-		    	data = connection.recv(500)
+				# recv() - reads from connection, 500 may not be best value 
+		    	data = connection.recv(500) #takes buffsize # bytes - power of 2
 			if data.count(',') == 10: 
 				data = data[:len(data)-2]
 		 	        dataArray = data.split(",")
 		 	        print dataArray
 		 	        item = QTableWidgetItem()
+				# clean this up with a for loop to reduce file space - SM
 				item.setText(dataArray[0])
 				self.tableWidget.setItem(0,0, item)
 			
@@ -121,11 +131,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 				item.setText(dataArray[8])
 				self.tableWidget.setItem(8,0, item)
 			        if data:
-					connection.sendall('0')
+					connection.sendall('0') #transmit data from gui to spacex
 					print('sending 0')
 					
 					
 					#data sent to spaceX
+					# convert data to string to be sent nicely to spacex
 					MESSAGE1 = struct.pack('BB',
             					  69, #team ID, given to us by space X
          					  status)
@@ -140,7 +151,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 						  0)
 					MESSAGE = MESSAGE1 + MESSAGE2
 					print MESSAGE
-
+					
+					#use one way udp connection to send to spacex
 					sock2.sendto(MESSAGE, (UDP_IP, UDP_PORT))
 
 				else:
