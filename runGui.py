@@ -1,5 +1,8 @@
 # runGui.py
 
+# Please include which dedpendencies this program
+# has so it can be rnu on other machines
+
 # !/usr/bin/python
 #this file is used to create the GUI
 #This creates a server and displays the GUI
