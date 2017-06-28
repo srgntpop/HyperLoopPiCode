@@ -13,15 +13,13 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Connect the socket to the port where the server is listening
 # the server address for client and host have to be same, not school wifi -docx
 # changed server address from '0.102' to '0.101' -SM
-server_address = ('192.168.0.101', 10004)
+server_address = ('192.168.0.102', 10004)
 
 #use command ifconfig on HOST computer to get IP addresss
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 sock.connect(server_address)
 
 ser = serial.Serial('/dev/ttyACM0',9600)
-
-
 
 
 #ser = serial.Serial('/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_75436343430351607011-if00',9600)
