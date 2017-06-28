@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>hyperlooplogo.jpg</file>
+    <file>Custom-Icon-Design-Mono-General-3-Wifi.ico</file>
+  </qresource>
+</RCC>
