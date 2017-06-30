@@ -27,9 +27,8 @@ import gtk
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# put the localhost address for first argument 
-# localhost = 127.0.0.1
-server_address = ('', 10000) 
+# for address put in the router's address
+server_address = ('iPv4 addr from router', 10004) 
 # If the socket closes incorrectly, the port number will need to be
 # incremented becasue the previous port is still open
 
@@ -102,7 +101,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 				# clean this up with a for loop to reduce file space - SM
 				item.setText(dataArray[0])
 				self.tableWidget.setItem(0,0, item)
+				
+				#for i in range(1, 9):
+				#	item = QTableWidgetItem()
+				#	item.setText(dataArray[i])
+				#	self.tableWidget.setItem(i,0, item)
 			
+	##################################################### remove with for loop
 				item = QTableWidgetItem()
 				item.setText(dataArray[1])
 				self.tableWidget.setItem(1,0, item)
@@ -135,19 +140,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 				item = QTableWidgetItem()
 				item.setText(dataArray[8])
 				self.tableWidget.setItem(8,0, item)
-			        if data:
+			       
+	##################################################### 
+				 if data:
 					connection.sendall('0') #transmit data from gui to spacex
 					print('sending 0')
 					
 					
 					#data sent to spaceX
-					# convert data to string to be sent nicely to spacex
+					#convert data to string to be sent nicely to spacex
 					MESSAGE1 = struct.pack('BB',
             					  69, #team ID, given to us by space X
          					  status)
 					MESSAGE2 = struct.pack('iiiiiiiI',
 					          int(dataArray[9]),
-            					  int(dataArray[0]),
+            		  		   int(dataArray[0]),
 						  int(dataArray[1]),
 						  0,#zero is optional data that isn't needed
 						  0,
@@ -155,7 +162,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 						  0,
 						  0)
 					MESSAGE = MESSAGE1 + MESSAGE2
-					print MESSAGE
+					print "udp message: " + MESSAGE
 					
 					#use one way udp connection to send to spacex
 					sock2.sendto(MESSAGE, (UDP_IP, UDP_PORT))
