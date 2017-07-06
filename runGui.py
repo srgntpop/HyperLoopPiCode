@@ -1,72 +1,61 @@
-# runGui.py
-
-# !/usr/bin/python
-#this file is used to create the GUI
+#!/usr/bin/python
+#this file is used to craete the the GUI
 #This creates a server and displays the GUI
-
-# NETWORK STUFF: Pi, SpaceX, GUI communications
-# setup a tcp/ip connection with the pi, receive data with sock.accept/recv
-# setup udp conneciton with spacex, send data from gui to spacex
-
-
-# TODO:
-# -check localhost server_address (30) 
-# -might have to change 500 bytes received with recv (95)
-# -check UDP_IP = localhost, may need to change if localhost is used for TCP/IP (44)
-from PyQt4.QtGui import * 
-from PyQt4.QtCore import * 
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 from GUIwithstart import Ui_MainWindow
 import struct
 import sys
 import socket
 import threading
-import gtk
+##import gtk
 
-
-#pyuic4 GUI.ui -o GUI.py # run this after changing GUI
+#pyuic4 GUI.ui -o GUI.py // run this after changing GUI
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+<<<<<<< HEAD
 # for address put in the router's address
 server_address = ('iPv4 addr from router', 10004) 
 # If the socket closes incorrectly, the port number will need to be
 # incremented becasue the previous port is still open
 
+=======
+>>>>>>> d8461fd6f8b111a81c5cd1aab1d2e33aef3c4cb1
 # Bind the socket to the port
+server_address = ('192.168.0.102', 10004) # If the socket closes incorrectly, the port number will need to be incremented becasue the previous port is still open
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 
 sock.listen(1) #accepts one connection
 
-#this tests the data we send to spaceX, you will need to test it on a 
-#seperate device instead of local host 
-UDP_IP = "localhost" #testing on my computer, change for later
+
+#this tests the data we send to spaceX, you will need to test it on a seperate device instead of local host 
+UDP_IP = "localhost"#testing on my computer, change for later
 UDP_PORT = 3000
 MESSAGE = "Hello, World!"
-#setup UDP connection
 sock2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 stopped = 0
 status = 0
-
 class MainWindow(QMainWindow, Ui_MainWindow):
 
 
 	def __init__(self, parent = None):
-        	QMainWindow.__init__(self, parent)
-        	self.setupUi(self)
-        	self.pushButton.clicked.connect(self.button_clicked)
-        	self.pushButton_2.clicked.connect(self.button2_clicked)
-        	threading.Thread(target=self.data_transfer).start()
+		QMainWindow.__init__(self, parent)
+		self.setupUi(self)
+		self.pushButton.clicked.connect(self.button_clicked)
+		self.pushButton_2.clicked.connect(self.button2_clicked)
+		threading.Thread(target=self.data_transfer).start()
         	
-    #stops the pod
+	#stops the pod
 	def button_clicked(self):
 		self.pushButton.setText("THE POD HAS STOPPED")
 		global stopped 
 		stopped = 1
 		
 		
-	#When the pod is ready
+		#When the pod is ready
 	def button2_clicked(self):
 
 		self.label.raise_()
@@ -81,24 +70,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
 			
 
-	#sends and recieves data and updates GUI
+			#sends and recieves data and updates GUI
 	def data_transfer(self):
 		global connection
-		# wait for connection use accept() return open connection and client address
 		connection, client_address = sock.accept()
 		counter  = 0
 		global stopped
 		global status
 		while True:
-		    if stopped != 1:
-				# recv() - reads from connection, 500 may not be best value 
-		    	data = connection.recv(500) #takes buffsize # bytes - power of 2
+			if stopped != 1:
+				data = connection.recv(500)
 			if data.count(',') == 10: 
 				data = data[:len(data)-2]
-		 	        dataArray = data.split(",")
-		 	        print dataArray
-		 	        item = QTableWidgetItem()
-				# clean this up with a for loop to reduce file space - SM
+				dataArray = data.split(",")
+				print dataArray
+				item = QTableWidgetItem()
 				item.setText(dataArray[0])
 				self.tableWidget.setItem(0,0, item)
 				
@@ -140,15 +126,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 				item = QTableWidgetItem()
 				item.setText(dataArray[8])
 				self.tableWidget.setItem(8,0, item)
+<<<<<<< HEAD
 			       
 	##################################################### 
 				 if data:
 					connection.sendall('0') #transmit data from gui to spacex
+=======
+				if data:
+					connection.sendall('0')
+>>>>>>> d8461fd6f8b111a81c5cd1aab1d2e33aef3c4cb1
 					print('sending 0')
 					
 					
 					#data sent to spaceX
+<<<<<<< HEAD
 					#convert data to string to be sent nicely to spacex
+=======
+>>>>>>> d8461fd6f8b111a81c5cd1aab1d2e33aef3c4cb1
 					MESSAGE1 = struct.pack('BB',
             					  69, #team ID, given to us by space X
          					  status)
@@ -162,9 +156,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 						  0,
 						  0)
 					MESSAGE = MESSAGE1 + MESSAGE2
+<<<<<<< HEAD
 					print "udp message: " + MESSAGE
 					
 					#use one way udp connection to send to spacex
+=======
+					print MESSAGE
+
+>>>>>>> d8461fd6f8b111a81c5cd1aab1d2e33aef3c4cb1
 					sock2.sendto(MESSAGE, (UDP_IP, UDP_PORT))
 
 				else:
@@ -176,21 +175,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 				print data
 				connection.sendall('0')
 
-		    else:
-		    	print >>sys.stderr, 'stopping pod'
-		    	connection.sendall('1')
+		else:
+			print >>sys.stderr, 'stopping pod'
+			connection.sendall('1')
 			sock.close()
 
 			
 
 		
 if __name__ == '__main__':
-    from PyQt4.QtGui import QApplication    
-    app = QApplication(sys.argv)
-    gtk.gdk.threads_init()
-    window = MainWindow()
-    window.show()
-    app.exec_()
-    sys.exit(app.exec_())
-   
-
+	from PyQt4.QtGui import QApplication
+	app = QApplication(sys.argv)
+##	gtk.gdk.threads_init()
+	window = MainWindow()
+	window.show()
+	app.exec_()
+	sys.exit(app.exec_())
