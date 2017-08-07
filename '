@@ -1,0 +1,22 @@
+from vnpy import *
+import time as time
+def main():
+	velocityX = 0.0
+	startTime = time.time()
+	timesRead = 0
+	while True:
+		timePassed = time.time() - startTime
+		if (timePassed < 2.0):
+			timesRead += 1
+			s = VnSensor()
+			s.connect('/dev/ttyUSB0', 115200)
+			reg = s.read_yaw_pitch_roll_magnetic_acceleration_and_angular_rates()
+			print(reg.accel)
+			reg.accel[7:]
+			
+		else:
+			break
+	print("time per loop: ")
+	print(timePassed/timesRead)
+
+main()
