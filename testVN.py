@@ -21,7 +21,6 @@ def medianFilter(arrayIn):
     median = 0.0
 
     sortedArrayIn = sorted(arrayIn)
-
     if (len(sortedArrayIn) % 2 == 1):
 
         median = sortedArrayIn[(len(sortedArrayIn) - 1) / 2]
@@ -65,7 +64,7 @@ def main():
     deltaT = 0.0
     startTime = time.time()
 
-    timesRead = 0
+    timesRead = 1
 
     while True:
 
@@ -76,12 +75,12 @@ def main():
             acceleration = reg.accel.x
             velocityX = velocityX + acceleration*deltaT
             position = velocityX*deltaT + (acceleration/2)*(deltaT*deltaT)
-
+        else:
+            break
         if (timePassed % 1 == 0):
             print(reg.accel.x, velocityX, position)
 
-        else:
-            break
+
 
     print("time per loop: ")
 
