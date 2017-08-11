@@ -1,81 +1,152 @@
-#Kevin Tarczali     9 August 2017
-#pi_control_software.py     version 2
+# Kevin Tarczali     9 August 2017
+# pi_control_software.py     version 2
 
 # List of States
 # 0  Idle       |   2   Ready           |   3   Pushing          |
 # 4  Coasting   |   5   Braking         |   6   Disengage Brakes |
-#7 Power Off    |   11  Fault Brakes    | 12 Fault No Brakes     |
+# 7 Power Off    |   11  Fault Brakes    | 12 Fault No Brakes     |
 
 # List of Inputs
 # 0 None | 1 Insert Pod |   2   Start | 3   Power Off | 4   Engage Brakes | 5 Disengage Brakes
 
+# Imports
+import socket
+import struct
+import random
+
 # Constants
-ACCELERATION_THRESHOLD = .5         #threshold at which pod can be determined to be accelerating, m/s^2
-DECCELERATING_THRESHOLD = 0         #threshold at which pod can be determined to be deccelerating, m/s^2
-IN_MOTION_THRESHOLD = 2             #threshold at which pod can be determined to be in motion, m/s
-MAX_AMPERAGE = 10                   #maximum safe amperage, w
-MAX_DISTANCE = 3000                 #maximum distance pod can travel before brakes engage automatically, m
-MAX_TAPE_COUNT = 50                 #maximum tape reads that can be read before brakes engage automatically, #
-MAX_TEMPERATURE_AMBIENT = 60        #maximum safe ambient tempererature reading in the pod, C
-MAX_TEMPERATURE_BATTERY = 50        #maximum safe temperature of battery, C
-MAX_TEMPERATURE_PI = 60             #maximum safe temperature of pi, C
-MAX_TIME = 1000                     #maximum time pod is coasting before brakes engage automatically, s
-MAX_VOLTAGE = 12                    #maximum safe voltage, v
-MIN_AMPERAGE = 0                    #minimum safe amperage, w
-MIN_VOLTAGE = 0                     #minimum safe voltage, v
-STOPPED_ACCELERATION_HIGH = 0.8     #high-end for acceleration reading when pod is stopped, m/s^2
-STOPPED_ACCELERATION_LOW = 0        #low-end for aceleration reading when pod is stopped, m/s^2
-STOPPED_VELOCITY_HIGH = 2           #high-end for velocity reading when pod is stopped, m/s
-STOPPED_VELOCITY_LOW = 0            #low-end for velocity reading when pod is stopped, m/s
-TAPE_COUNT_MOVING = 3               #tape count that indicates pod is moving
-TRANSITION_CHECK_COUNT = 10         #number of times a transition is requested before it actually transitions, historasis
+ACCELERATION_THRESHOLD = .5         # threshold at which pod can be determined to be accelerating, m/s^2
+DECELERATING_THRESHOLD = 0          # threshold at which pod can be determined to be deccelerating, m/s^2
+IN_MOTION_THRESHOLD = 2             # threshold at which pod can be determined to be in motion, m/s
+MAX_AMPERAGE = 10                   # maximum safe amperage, w
+MAX_DISTANCE = 3000                 # maximum distance pod can travel before brakes engage automatically, m
+MAX_TAPE_COUNT = 50                 # maximum tape reads that can be read before brakes engage automatically, #
+MAX_TEMPERATURE_AMBIENT = 60        # maximum safe ambient tempererature reading in the pod, C
+MAX_TEMPERATURE_BATTERY = 50        # maximum safe temperature of battery, C
+MAX_TEMPERATURE_PI = 60             # maximum safe temperature of pi, C
+MAX_TIME = 1000                     # maximum time pod is coasting before brakes engage automatically, s
+MAX_VOLTAGE = 12                    # maximum safe voltage, v
+MIN_AMPERAGE = 0                    # minimum safe amperage, w
+MIN_VOLTAGE = 0                     # minimum safe voltage, v
+STOPPED_ACCELERATION_HIGH = 0.8     # high-end for acceleration reading when pod is stopped, m/s^2
+STOPPED_ACCELERATION_LOW = 0        # low-end for acceleration reading when pod is stopped, m/s^2
+STOPPED_VELOCITY_HIGH = 2           # high-end for velocity reading when pod is stopped, m/s
+STOPPED_VELOCITY_LOW = 0            # low-end for velocity reading when pod is stopped, m/s
+TAPE_COUNT_MOVING = 3               # tape count that indicates pod is moving
+TRANSITION_CHECK_COUNT = 10         # number of times a transition is requested before it actually transitions, historasis
 
 # sensor variables
-acceleration = 0.0                  #forward acceleration of pod, m/s^2
-amperage1 = 0.0                     #amperage reading 1, w
-amperage2 = 0.0                     #amperage reading 2, w
-currentState = 0                    #current state of software
-guiInput = 0                        #command sent from GUI
-mode = 0                            #state that SpaceX has designated in the safety manual
-pitch = 0.0                         #pod pitch, TODO insert measurement units
-position = 0.0                      #calculated position, m
-proposedStateNumber = 0             #number corresponding to state that software wishes to change to
-proposedStateCount = 0              #number of times state change has been proposed
-roll = 0.0                          #pod roll, TODO insert measurement units
-tapeCount = 0                       #tape count measured from color sensor
-temp_ambient = 0.0                  #ambient pod temperature, C
-temp_battery = 0.0                  #battery temperature, C
-temp_pi = 0.0                       #raspberry pi temperature, C
-time = 0                            #time counter for coasting, s
-velocityX = 0.0                     #velocity in x direction, m/s
-velocityY = 0.0                     #velocity in y direction, m/s
-velocityZ = 0.0                     #velocity in z direction, m/s
-voltage1 = 0.0                      #voltage reading 1, v
-voltage2 = 0.0                      #voltage reading 2, v
-yaw = 0.0                           #pod yaw, TODO insert measurement units
+guiInput = 0                        # command sent from GUI
+mode = 0                            # state that SpaceX has designated in the safety manual
+proposedStateNumber = 0             # number corresponding to state that software wishes to change to
+proposedStateCount = 0              # number of times state change has been proposed
+    # The following will be packed and sent to GUI
+currentState = 0                    # current state of software
+time = 0                            # time counter for coasting, s
+tapeCount = 0                       # tape count measured from color sensor
+position = 0.0                      # calculated position, m
+acceleration = 0.0                  # forward acceleration of pod, m/s^2
+amperage1 = 0.0                     # amperage reading 1, a
+amperage2 = 0.0                     # amperage reading 2, a
+voltage1 = 0.0                      # voltage reading 1, v
+voltage2 = 0.0                      # voltage reading 2, v
+pitch = 0.0                         # pod pitch, TODO insert measurement units
+roll = 0.0                          # pod roll, TODO insert measurement units
+yaw = 0.0                           # pod yaw, TODO insert measurement units
+temp_ambient = 0.0                  # ambient pod temperature, C
+temp_battery = 0.0                  # battery temperature, C
+temp_pi = 0.0                       # raspberry pi temperature, C
+velocityX = 0.0                     # velocity in x direction, m/s
+velocityY = 0.0                     # velocity in y direction, m/s
+velocityZ = 0.0                     # velocity in z direction, m/s
 
-#function that reads information from master arduino and updates sensor variables
+# Socket Communication
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_address = ('149.125.118.49', 10004) # Must be modified based on what network you are connected to
+sock.connect(server_address)
+masterConnect = False
+guiConnect = False
+
+# Struct
+packer = struct.Struct('3I 15f')
+
+
+# function that reads information from master arduino and updates sensor variables
 def readMaster():
-    global acceleration
-    global yaw
-    global pitch
-    global roll
+    # global acceleration
+    # global yaw
+    # global pitch
+    # global roll
+    # global tapeCount
+    # global amperage1
+    # global amperage2
+    # global voltage1
+    # global voltage2
+    # global temp_pi
+    # global temp_battery
+    # global temp_ambient
+    print("read master")
+
+    # GUI value Testing Code
+    global currentState
+    global time
     global tapeCount
+    global position
+    global acceleration
     global amperage1
     global amperage2
     global voltage1
     global voltage2
-    global temp_pi
-    global temp_battery
+    global pitch
+    global roll
+    global yaw
     global temp_ambient
-    print("read masta")
+    global temp_battery
+    global temp_pi
+    global velocityX
+    global velocityY
+    global velocityZ
+    currentState = random.randint(0,100)
+    time = random.randint(0, 100)
+    tapeCount = random.randint(0, 100)
+    position = random.uniform(0.0, 100.0)
+    acceleration = random.uniform(0.0, 100.0)
+    amperage1 = random.uniform(0.0, 100.0)
+    amperage2 = random.uniform(0.0, 100.0)
+    voltage1 = random.uniform(0.0, 100.0)
+    voltage2 = random.uniform(0.0, 100.0)
+    pitch = random.uniform(0.0, 100.0)
+    roll = random.uniform(0.0, 100.0)
+    yaw = random.uniform(0.0, 100.0)
+    temp_ambient = random.uniform(0.0, 100.0)
+    temp_battery = random.uniform(0.0, 100.0)
+    temp_pi = random.uniform(0.0, 100.0)
+    velocityX = random.uniform(0.0, 100.0)
+    velocityY = random.uniform(0.0, 100.0)
+    velocityZ = random.uniform(0.0, 100.0)
 
-#function that reads information from GUI and updates guiInput variable
+
+# function that reads information from GUI and updates guiInput variable
 def readGUI():
+    global guiConnect
+    if(guiConnect == False):
+        sock.send(b'0')
+        retVal = sock.recv(1)
+        retVal = retVal.decode('utf-8')
+        if(retVal == '0'):
+            guiConnect = True
+            guiData = packer.pack(currentState, time, tapeCount, position, acceleration, amperage1, amperage2, voltage1,
+                                  voltage2, pitch, roll, yaw, temp_ambient, temp_battery, temp_pi, velocityX, velocityY, velocityZ)
+            sock.send(guiData)
+        else:
+            print('Connection could not be made')
+    else:
+        print('read GUI')
     global guiInput
-    print("read GUI")
 
-#this function does any computations to update the variables, like position and velocity
+
+
+# this function does any computations to update the variables, like position and velocity
 def compute():
     global position
     global velocityX
@@ -95,7 +166,7 @@ def powerOff():
 #checks if any of the sensor values are in critical ranges
 def criticalSensorValueCheck():
     print("checking if sensor values are critical...")
-    if (amperage1 > MAX_AMPERAGE | amperage2 > MAX_AMPERAGE | voltage1 > MAX_VOLTAGE | voltage2 > MAX_VOLTAGE | temp_ambient > MAX_TEMPERATURE_AMBIENT | temp_battery > MAX_TEMPERATURE_BATTERY | temp_pi > MAX_TEMPERATURE_PI):
+    if (amperage1 > MAX_AMPERAGE or amperage2 > MAX_AMPERAGE or voltage1 > MAX_VOLTAGE or voltage2 > MAX_VOLTAGE or temp_ambient > MAX_TEMPERATURE_AMBIENT or temp_battery > MAX_TEMPERATURE_BATTERY or temp_pi > MAX_TEMPERATURE_PI):
         return True
     return False
 
@@ -132,7 +203,7 @@ def stateChange():
                     proposedStateCount += 1
 
         elif (guiInput == 4 | (
-                acceleration > ACCELERATION_THRESHOLD & velocityX > IN_MOTION_THRESHOLD) | criticalSensorValueCheck()):
+                acceleration > ACCELERATION_THRESHOLD and velocityX > IN_MOTION_THRESHOLD) or criticalSensorValueCheck()):
             if (proposedStateCount > TRANSITION_CHECK_COUNT):
                 currentState = 12
                 proposedStateCount = 0
@@ -143,7 +214,7 @@ def stateChange():
                 else:
                     proposedStateCount += 1
         elif (guiInput == 4 | (
-                acceleration > DECCELERATING_THRESHOLD & velocityX > IN_MOTION_THRESHOLD) | criticalSensorValueCheck()):
+                acceleration > DECELERATING_THRESHOLD and velocityX > IN_MOTION_THRESHOLD) or criticalSensorValueCheck()):
             if (proposedStateCount > TRANSITION_CHECK_COUNT):
                 currentState = 11
                 proposedStateCount = 0
@@ -164,7 +235,7 @@ def stateChange():
                     proposedStateCount += 1
     # ready
     elif (currentState == 2):
-        if (acceleration > ACCELERATION_THRESHOLD | velocityX > IN_MOTION_THRESHOLD | tapeCount > TAPE_COUNT_MOVING):
+        if (acceleration > ACCELERATION_THRESHOLD or velocityX > IN_MOTION_THRESHOLD or tapeCount > TAPE_COUNT_MOVING):
             if (proposedStateCount > TRANSITION_CHECK_COUNT):
                 currentState = 3
                 proposedStateCount = 0
@@ -186,7 +257,7 @@ def stateChange():
                     proposedStateCount += 1
     # Pushing
     elif (currentState == 3):
-        if (acceleration < DECCELERATING_THRESHOLD):
+        if (acceleration < DECELERATING_THRESHOLD):
             if (proposedStateCount > TRANSITION_CHECK_COUNT):
                 currentState = 4
                 proposedStateCount = 0
@@ -208,7 +279,7 @@ def stateChange():
                     proposedStateCount += 1
     # Coasting
     elif (currentState == 4):
-        if (time > MAX_TIME | tapeCount > MAX_TAPE_COUNT | position > MAX_DISTANCE):
+        if (time > MAX_TIME or tapeCount > MAX_TAPE_COUNT or position > MAX_DISTANCE):
             if (proposedStateCount > TRANSITION_CHECK_COUNT):
                 currentState = 5
                 proposedStateCount = 0
@@ -230,7 +301,7 @@ def stateChange():
                     proposedStateCount += 1
     # Braking
     elif (currentState == 5):
-        if (guiInput == 5 & acceleration < STOPPED_ACCELERATION_HIGH & acceleration > STOPPED_ACCELERATION_LOW & velocityX < STOPPED_VELOCITY_LOW & velocityX > STOPPED_VELOCITY_LOW):
+        if (guiInput == 5 and acceleration < STOPPED_ACCELERATION_HIGH or acceleration > STOPPED_ACCELERATION_LOW and velocityX < STOPPED_VELOCITY_LOW or velocityX > STOPPED_VELOCITY_LOW):
             if (proposedStateCount > TRANSITION_CHECK_COUNT):
                 currentState = 6
                 proposedStateCount = 0
@@ -283,7 +354,7 @@ def stateChange():
             engageBrakes()
     # Fault No Brakes
     elif (currentState == 12):
-        if (acceleration < DECCELERATING_THRESHOLD):
+        if (acceleration < DECELERATING_THRESHOLD):
             if (proposedStateCount > TRANSITION_CHECK_COUNT):
                 currentState = 11
                 proposedStateCount = 0
@@ -296,18 +367,20 @@ def stateChange():
         else:
             disengageBrakes()
 
-#function that sends information back to GUI
+# function that sends information back to GUI
 def writeGUI():
     print ("write information back to GUI")
 
-#main method, wizard that controlls the various tasks
+# main method, wizard that controls the various tasks
 def main():
     while(True):
         readMaster()
         readGUI()
-        compute()
-        stateChange()
-        writeGUI()
+        if(masterConnect == True):
+            compute()
+            stateChange()
+        if(guiConnect == True):
+            writeGUI()
 
-#run main dude
+# Run Main
 main()
