@@ -4,7 +4,7 @@
 # List of States
 # 0  Idle       |   2   Ready           |   3   Pushing          |
 # 4  Coasting   |   5   Braking         |   6   Disengage Brakes |
-# 7 Power Off    |   11  Fault Brakes    | 12 Fault No Brakes     |
+# 7 Power Off   |   11  Fault Brakes    | 12 Fault No Brakes     |
 
 # List of Inputs
 # 0 None | 1 Insert Pod |   2   Start | 3   Power Off | 4   Engage Brakes | 5 Disengage Brakes
@@ -18,16 +18,16 @@ import random
 ACCELERATION_THRESHOLD = .5         # threshold at which pod can be determined to be accelerating, m/s^2
 DECELERATING_THRESHOLD = 0          # threshold at which pod can be determined to be deccelerating, m/s^2
 IN_MOTION_THRESHOLD = 2             # threshold at which pod can be determined to be in motion, m/s
-MAX_AMPERAGE = 10                   # maximum safe amperage, w
+MAX_AMPERAGE = 50                   # maximum safe amperage, w
+MIN_AMPERAGE = 0                    # minimum safe amperage, w
 MAX_DISTANCE = 3000                 # maximum distance pod can travel before brakes engage automatically, m
 MAX_TAPE_COUNT = 50                 # maximum tape reads that can be read before brakes engage automatically, #
-MAX_TEMPERATURE_AMBIENT = 60        # maximum safe ambient tempererature reading in the pod, C
-MAX_TEMPERATURE_BATTERY = 50        # maximum safe temperature of battery, C
+MAX_TEMPERATURE_AMBIENT = 60        # maximum safe ambient temperature reading in the pod, C
+MAX_TEMPERATURE_BATTERY = 60        # maximum safe temperature of battery, C
 MAX_TEMPERATURE_PI = 60             # maximum safe temperature of pi, C
 MAX_TIME = 1000                     # maximum time pod is coasting before brakes engage automatically, s
-MAX_VOLTAGE = 12                    # maximum safe voltage, v
-MIN_AMPERAGE = 0                    # minimum safe amperage, w
-MIN_VOLTAGE = 0                     # minimum safe voltage, v
+MAX_VOLTAGE = 16.8                  # maximum safe voltage, v
+MIN_VOLTAGE = 12                    # minimum safe voltage, v
 STOPPED_ACCELERATION_HIGH = 0.8     # high-end for acceleration reading when pod is stopped, m/s^2
 STOPPED_ACCELERATION_LOW = 0        # low-end for acceleration reading when pod is stopped, m/s^2
 STOPPED_VELOCITY_HIGH = 2           # high-end for velocity reading when pod is stopped, m/s
@@ -40,25 +40,26 @@ guiInput = 0                        # command sent from GUI
 mode = 0                            # state that SpaceX has designated in the safety manual
 proposedStateNumber = 0             # number corresponding to state that software wishes to change to
 proposedStateCount = 0              # number of times state change has been proposed
-    # The following will be packed and sent to GUI
+    # The following sensor variables will be packed and sent to GUI
 currentState = 0                    # current state of software
 time = 0                            # time counter for coasting, s
 tapeCount = 0                       # tape count measured from color sensor
 position = 0.0                      # calculated position, m
 acceleration = 0.0                  # forward acceleration of pod, m/s^2
+velocityX = 0.0                     # velocity in x direction, m/s
+velocityY = 0.0                     # velocity in y direction, m/s
+velocityZ = 0.0                     # velocity in z direction, m/s
+roll = 0.0                          # pod roll, TODO insert measurement units
+pitch = 0.0                         # pod pitch, TODO insert measurement units
+yaw = 0.0                           # pod yaw, TODO insert measurement units
+        # These require Health Check
 amperage1 = 0.0                     # amperage reading 1, a
 amperage2 = 0.0                     # amperage reading 2, a
 voltage1 = 0.0                      # voltage reading 1, v
 voltage2 = 0.0                      # voltage reading 2, v
-pitch = 0.0                         # pod pitch, TODO insert measurement units
-roll = 0.0                          # pod roll, TODO insert measurement units
-yaw = 0.0                           # pod yaw, TODO insert measurement units
 temp_ambient = 0.0                  # ambient pod temperature, C
 temp_battery = 0.0                  # battery temperature, C
 temp_pi = 0.0                       # raspberry pi temperature, C
-velocityX = 0.0                     # velocity in x direction, m/s
-velocityY = 0.0                     # velocity in y direction, m/s
-velocityZ = 0.0                     # velocity in z direction, m/s
 
 # Socket Communication
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -106,7 +107,7 @@ def readMaster():
     global velocityX
     global velocityY
     global velocityZ
-    currentState = random.randint(0,100)
+    currentState = random.randint(0,10)
     time = random.randint(0, 100)
     tapeCount = random.randint(0, 100)
     position = random.uniform(0.0, 100.0)
