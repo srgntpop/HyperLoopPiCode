@@ -13,6 +13,7 @@
 import socket
 import struct
 import random
+import serial
 
 # Constants
 ACCELERATION_THRESHOLD = .5         # threshold at which pod can be determined to be accelerating, m/s^2
@@ -33,7 +34,7 @@ STOPPED_ACCELERATION_LOW = 0        # low-end for acceleration reading when pod 
 STOPPED_VELOCITY_HIGH = 2           # high-end for velocity reading when pod is stopped, m/s
 STOPPED_VELOCITY_LOW = 0            # low-end for velocity reading when pod is stopped, m/s
 TAPE_COUNT_MOVING = 3               # tape count that indicates pod is moving
-TRANSITION_CHECK_COUNT = 10         # number of times a transition is requested before it actually transitions, historasis
+TRANSITION_CHECK_COUNT = 10         # number of times a transition is requested before it actually transitions, hysteresis
 
 # sensor variables
 guiInput = 0                        # command sent from GUI
@@ -45,7 +46,9 @@ currentState = 0                    # current state of software
 time = 0                            # time counter for coasting, s
 tapeCount = 0                       # tape count measured from color sensor
 position = 0.0                      # calculated position, m
-acceleration = 0.0                  # forward acceleration of pod, m/s^2
+accelerationX = 0.0                 # forward acceleration of pod, m/s^2
+accelerationY = 0.0					# sideways acceleration of pod, m/s^2
+accelerationZ = 0.0					# vertical acceleration of pod, m/s^2
 velocityX = 0.0                     # velocity in x direction, m/s
 velocityY = 0.0                     # velocity in y direction, m/s
 velocityZ = 0.0                     # velocity in z direction, m/s
@@ -62,16 +65,22 @@ temp_battery1 = 0.0                 # battery temperature, C
 temp_battery2 = 0.0                 # raspberry pi temperature, C
 
 # Socket Communication
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('149.125.118.49', 10004) # Must be modified based on what network you are connected to
-sock.connect(server_address)
-masterConnect = False
 guiConnect = False
+
+# Master Arduino Communication
+masterBaud = 9600
+masterUsbPort = '/dev/ttyACM0'
+masterConnect = False
+
+# TODO: setup vn connection code
+# Vector Navigation 100 AHRS/IMU
+vnConnect = False
 
 # Struct
 packer = struct.Struct('3I 15f')
 
-
+# TODO: finish setting variables
+# dependencies: sending data from Master
 # function that reads information from master arduino and updates sensor variables
 def readMaster():
     print("read master")
@@ -114,7 +123,20 @@ def readMaster():
     velocityY = random.uniform(0.0, 100.0)
     velocityZ = random.uniform(0.0, 100.0)
 
+    if(masterConnect == False):
+		try:
+			masterSerial = serial.serial(masterUsbPort, masterBaud)
+			masterConnect = True
+		except Exception as exc:
+            print("Master connect failed. Exception raised: ")
+			print(exc)
+    else:
+        print("Master connected...")
+		serialData = masterSerial.readline()
+		serialArray = serialData.strip().split(',')
+		# set variables equal to the array indeces
 
+# TODO: set guiInput variable from GUI
 # function that reads information from GUI and updates guiInput variable
 def readGUI():
     global guiConnect
@@ -125,15 +147,18 @@ def readGUI():
         if(retVal == '0'):
             guiConnect = True
         else:
-            print('Connection could not be made')
+            print('GUI connection could not be made')
     else:
         print('read GUI')
     global guiInput
 
 
-
+# TODO: use vn100 to calculate velocity, acceleration and position
 # this function does any computations to update the variables, like position and velocity
 def compute():
+	global accelerationX
+	global accelerationY
+	global accelerationZ
     global position
     global velocityX
     global velocityY
@@ -144,8 +169,13 @@ def compute():
 #attempt to reconnect wireless network with TRANSITION_CHECK_COUNT number of attempts
 def diagnostic():
     print("running diagnostic")
+	if (guiConnect == False):
+		for connectAttempt in range(TRANSITION_CHECK_COUNT):
+			# DOLAN TODO: write code for reconnecting wifi in this loop
+			# sock.connect() ? <--  idk something like that 
 
-#turns off pi
+#turns off pi, (batteries?), do we want there to be no electricity?, do we have a switch for the batteries
+#TODO: discuss with anthony and tyler what else needs to be shut down for the batteries
 def powerOff():
     print("powering down...")
 
@@ -156,14 +186,17 @@ def criticalSensorValueCheck():
         return True
     return False
 
+#TODO: implement Pi's interrupt with I/O pins with anthony
 #sends command to slave to engage brakes
 def engageBrakes():
     print("engaging brakes...")
 
+#TODO: serial.write brake command to master
 #sends command to slave to retract brakes
 def disengageBrakes():
     print ("disengaging brakes...")
 
+#TODO: review function with state diagram
 #function that controls the logic of the state changes
 def stateChange():
     global currentState
@@ -365,6 +398,7 @@ def main():
     while(True):
         readMaster()
         readGUI()
+		compute()
         if(masterConnect == True):
             compute()
             stateChange()
