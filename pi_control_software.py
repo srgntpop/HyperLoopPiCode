@@ -58,8 +58,8 @@ amperage2 = 0.0                     # amperage reading 2, a
 voltage1 = 0.0                      # voltage reading 1, v
 voltage2 = 0.0                      # voltage reading 2, v
 temp_ambient = 0.0                  # ambient pod temperature, C
-temp_battery = 0.0                  # battery temperature, C
-temp_pi = 0.0                       # raspberry pi temperature, C
+temp_battery1 = 0.0                 # battery temperature, C
+temp_battery2 = 0.0                 # raspberry pi temperature, C
 
 # Socket Communication
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -74,18 +74,6 @@ packer = struct.Struct('3I 15f')
 
 # function that reads information from master arduino and updates sensor variables
 def readMaster():
-    # global acceleration
-    # global yaw
-    # global pitch
-    # global roll
-    # global tapeCount
-    # global amperage1
-    # global amperage2
-    # global voltage1
-    # global voltage2
-    # global temp_pi
-    # global temp_battery
-    # global temp_ambient
     print("read master")
 
     # GUI value Testing Code
@@ -102,12 +90,12 @@ def readMaster():
     global roll
     global yaw
     global temp_ambient
-    global temp_battery
-    global temp_pi
+    global temp_battery1
+    global temp_battery2
     global velocityX
     global velocityY
     global velocityZ
-    currentState = random.randint(0,10)
+    currentState = random.randint(0, 10)
     time = random.randint(0, 100)
     tapeCount = random.randint(0, 100)
     position = random.uniform(0.0, 100.0)
@@ -120,8 +108,8 @@ def readMaster():
     roll = random.uniform(0.0, 100.0)
     yaw = random.uniform(0.0, 100.0)
     temp_ambient = random.uniform(0.0, 100.0)
-    temp_battery = random.uniform(0.0, 100.0)
-    temp_pi = random.uniform(0.0, 100.0)
+    temp_battery1 = random.uniform(0.0, 100.0)
+    temp_battery2 = random.uniform(0.0, 100.0)
     velocityX = random.uniform(0.0, 100.0)
     velocityY = random.uniform(0.0, 100.0)
     velocityZ = random.uniform(0.0, 100.0)
@@ -136,9 +124,6 @@ def readGUI():
         retVal = retVal.decode('utf-8')
         if(retVal == '0'):
             guiConnect = True
-            guiData = packer.pack(currentState, time, tapeCount, position, acceleration, amperage1, amperage2, voltage1,
-                                  voltage2, pitch, roll, yaw, temp_ambient, temp_battery, temp_pi, velocityX, velocityY, velocityZ)
-            sock.send(guiData)
         else:
             print('Connection could not be made')
     else:
@@ -167,7 +152,7 @@ def powerOff():
 #checks if any of the sensor values are in critical ranges
 def criticalSensorValueCheck():
     print("checking if sensor values are critical...")
-    if (amperage1 > MAX_AMPERAGE or amperage2 > MAX_AMPERAGE or voltage1 > MAX_VOLTAGE or voltage2 > MAX_VOLTAGE or temp_ambient > MAX_TEMPERATURE_AMBIENT or temp_battery > MAX_TEMPERATURE_BATTERY or temp_pi > MAX_TEMPERATURE_PI):
+    if (amperage1 > MAX_AMPERAGE or amperage2 > MAX_AMPERAGE or voltage1 > MAX_VOLTAGE or voltage2 > MAX_VOLTAGE or temp_ambient > MAX_TEMPERATURE_AMBIENT or temp_battery > MAX_TEMPERATURE_BATTERY or temp_battery2 > MAX_TEMPERATURE_PI):
         return True
     return False
 
@@ -370,7 +355,10 @@ def stateChange():
 
 # function that sends information back to GUI
 def writeGUI():
-    print ("write information back to GUI")
+    guiData = packer.pack(currentState, time, tapeCount, position, acceleration, velocityX, velocityY, velocityZ,
+                          roll, pitch, yaw, amperage1,  amperage2,  voltage1,  voltage2,  temp_ambient,  temp_battery1,
+                          temp_battery2)
+    sock.send(guiData)
 
 # main method, wizard that controls the various tasks
 def main():

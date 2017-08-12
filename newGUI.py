@@ -165,219 +165,164 @@ class UpdatingGUI(tk.Frame):
         tk.Frame.__init__(self, parent, bg='white')
         self.parent = parent
 
-        # self.stop_event = Event()
+        # Time Elapsed
+        self.timeint = tk.IntVar()
+        self.timeint.set(0)
+        self.time = tk.Label(self, text="Time", textvariable=self.timeint, fg='black', bg='white')
+        self.timeLbl = tk.Label(self, text="Time Elapsed: ", fg='black', bg='white')
+        self.timeLbl.grid(row=0, column=0)
+        self.time.grid(row=0, column=1)
 
+        # Tape Count
+        self.tapeCountInt = tk.IntVar()
+        self.tapeCountInt.set(0)
+        self.tapeCount = tk.Label(self, text="Tape Count", textvariable=self.tapeCountInt, fg='black', bg='white')
+        self.tapeCountLbl = tk.Label(self, text="Tape Count: ", fg='black', bg='white')
+        self.tapeCountLbl.grid(row=1, column=0)
+        self.tapeCount.grid(row=1, column=1)
 
         # Position
-        self.updating_posint = tk.IntVar()
-        self.updating_posint.set(0)
-        self.updating_pos = tk.Label(self, text="Position", textvariable=self.updating_posint, fg='black', bg='white')
-        # self.updating_lbl.pack()
+        self.posval = tk.DoubleVar()
+        self.posval.set(0.0)
+        self.pos = tk.Label(self, text="Position", textvariable=self.posval, fg='black', bg='white')
         self.positionLbl = tk.Label(self, text="Position: ", fg='black', bg='white')
-        # self.heightLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-        # self.updating_lbl.pack(padx = 2, pady = 2, side = tk.RIGHT)
+        self.positionLbl.grid(row=2, column=0)
+        self.pos.grid(row=2, column=1)
 
-
-        # Yaw
-        self.updating_yaw = tk.IntVar()
-        self.updating_yaw.set(0)
-        self.updating_yawLbl = tk.Label(self, text="Yaw", textvariable=self.updating_yaw, fg='black', bg='white')
-        # self.updating_yawLbl.pack()
-        self.YawLbl = tk.Label(self, text="Yaw: ", fg='black', bg='white')
-        # self.YawLbl.pack()
-        # self.updating_yawLbl.pack()
-
-
-        # Pitch
-        self.updating_pitch = tk.IntVar()
-        self.updating_pitch.set(0)
-        self.updating_pitchLbl = tk.Label(self, text="Pitch", textvariable=self.updating_pitch, fg='black', bg='white')
-        # self.updating_pitchLbl.pack()
-        self.PitchLbl = tk.Label(self, text="Pitch: ", fg='black', bg='white')
-        # self.PitchLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_pitchLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-
-        # Roll
-        self.updating_roll = tk.IntVar()
-        self.updating_roll.set(0)
-        self.updating_rollLbl = tk.Label(self, text="Roll", textvariable=self.updating_roll, fg='black', bg='white')
-        # self.updating_rollLbl.pack()
-        self.RollLbl = tk.Label(self, text="Roll: ", fg='black', bg='white')
-        # self.RollLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_rollLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-
-        # Accel Z
-        self.updating_az = tk.IntVar()
-        self.updating_az.set(0)
-        self.updating_azLbl = tk.Label(self, text="Accel Z: ", textvariable=self.updating_az, fg='black', bg='white')
-        # self.updating_azLbl.pack()
-        self.AzLbl = tk.Label(self, text="Accel Z: ", fg='black', bg='white')
-        # self.AzLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_azLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-
-        # Accel Y
-        self.updating_ay = tk.IntVar()
-        self.updating_ay.set(0)
-        self.updating_ayLbl = tk.Label(self, text="Accel Y: ", textvariable=self.updating_ay, fg='black', bg='white')
-        # self.updating_ayLbl.pack()
-        self.AyLbl = tk.Label(self, text="Accel Y: ", fg='black', bg='white')
-        # self.AyLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_ayLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-
-        # Accel X
-        self.updating_ax = tk.IntVar()
-        self.updating_ax.set(0)
-        self.updating_axLbl = tk.Label(self, text="Accel X: ", textvariable=self.updating_ax, fg='black', bg='white')
-        # self.updating_axLbl.pack()
-        self.AxLbl = tk.Label(self, text="Accel X: ", fg='black', bg='white')
-        # self.AxLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_axLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-
-        # Velocity Z
-        self.updating_vz = tk.IntVar()
-        self.updating_vz.set(0)
-        self.updating_vzLbl = tk.Label(self, text="Velocity Z: ", textvariable=self.updating_vz, fg='black', bg='white')
-        # self.updating_mzLbl.pack()
-        self.VzLbl = tk.Label(self, text="Velocity Z: ", fg='black', bg='white')
-        # self.MzLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_mzLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-
-        # Velocity Y
-        self.updating_vy = tk.IntVar()
-        self.updating_vy.set(0)
-        self.updating_vyLbl = tk.Label(self, text="Velocity Y: ", textvariable=self.updating_vy, fg='black', bg='white')
-        # self.updating_myLbl.pack()
-        self.VyLbl = tk.Label(self, text="Veclocity Y: ", fg='black', bg='white')
-        # self.MyLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_myLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
+        # Acceleration
+        self.accelval = tk.DoubleVar()
+        self.accelval.set(0.0)
+        self.accel = tk.Label(self, text="Acceleration: ", textvariable=self.accelval, fg='black', bg='white')
+        self.accelLbl = tk.Label(self, text="Acceleration: ", fg='black', bg='white')
+        self.accelLbl.grid(row=3, column=0)
+        self.accel.grid(row=3, column=1)
 
         # Velocity X
-        self.updating_vx = tk.IntVar()
-        self.updating_vx.set(0)
-        self.updating_vxLbl = tk.Label(self, text="Velocity X: ", textvariable=self.updating_vx, fg='black', bg='white')
-        # self.updating_mxLbl.pack()
-        self.VxLbl = tk.Label(self, text="Veclocity X: ", fg='black', bg='white')
-        # self.MxLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_mxLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
+        self.vxval = tk.DoubleVar()
+        self.vxval.set(0.0)
+        self.vx = tk.Label(self, text="Velocity X: ", textvariable=self.vxval, fg='black', bg='white')
+        self.vxLbl = tk.Label(self, text="Veclocity X: ", fg='black', bg='white')
+        self.vxLbl.grid(row=4, column=0)
+        self.vx.grid(row=4, column=1)
 
-        # Light
-        self.updating_l = tk.IntVar()
-        self.updating_l.set(0)
-        self.updating_lLbl = tk.Label(self, text="Light Detection ", textvariable=self.updating_l, fg='black', bg='white')
-        # self.updating_lLbl.pack()
-        self.LightLbl = tk.Label(self, text="Light Detection: ", fg='black', bg='white')
-        # self.LightLbl.pack(padx = 5, pady = 10, side = tk.RIGHT)
-        # self.updating_lLbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
+        # Velocity Y
+        self.vyval = tk.DoubleVar()
+        self.vyval.set(0.0)
+        self.vy = tk.Label(self, text="Velocity Y: ", textvariable=self.vyval, fg='black', bg='white')
+        self.vyLbl = tk.Label(self, text="Veclocity Y: ", fg='black', bg='white')
+        self.vyLbl.grid(row=5, column=0)
+        self.vy.grid(row=5, column=1)
 
-        # Temperature 1
-        self.updating_temp1int = tk.IntVar()
-        self.updating_temp1int.set(0)
-        self.updating_temp1 = tk.Label(self, text="Temperature 1", textvariable=self.updating_temp1int, fg='black', bg='white')
-        # # self.updating_A4.pack()
-        self.temp1Lbl = tk.Label(self, text="Temperature 1: ", fg='black', bg='white')
-        # # self.air4Lbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-        # # self.updating_A4.pack(padx = 2, pady = 2, side = tk.RIGHT)
+        # Velocity Z
+        self.vzval = tk.DoubleVar()
+        self.vzval.set(0.0)
+        self.vz = tk.Label(self, text="Velocity Z: ", textvariable=self.vzval, fg='black', bg='white')
+        self.vzLbl = tk.Label(self, text="Velocity Z: ", fg='black', bg='white')
+        self.vzLbl.grid(row=6, column=0)
+        self.vz.grid(row=6, column=1)
 
-        # Temperature 2
-        self.updating_temp2int = tk.IntVar()
-        self.updating_temp2int.set(0)
-        self.updating_temp2 = tk.Label(self, text="Temperature 2", textvariable=self.updating_temp2int, fg='black', bg='white')
-        # # self.updating_A3.pack()
-        self.temp2Lbl = tk.Label(self, text="Temperature 2: ", fg='black', bg='white')
-        # # self.air3Lbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-        # # self.updating_A3.pack(padx = 2, pady = 2, side = tk.RIGHT)
+        # Roll
+        self.rollval = tk.DoubleVar()
+        self.rollval.set(0.0)
+        self.roll = tk.Label(self, text="Roll", textvariable=self.rollval, fg='black', bg='white')
+        self.rollLbl = tk.Label(self, text="Roll: ", fg='black', bg='white')
+        self.rollLbl.grid(row=7, column=0)
+        self.roll.grid(row=7, column=1)
 
-        # Voltage
-        self.updating_voltint = tk.IntVar()
-        self.updating_voltint.set(0)
-        self.updating_volt = tk.Label(self, text="Voltage", textvariable=self.updating_voltint, fg='black', bg='white')
-        # self.updating_A2.pack()
-        self.voltageLbl = tk.Label(self, text="Voltage: ", fg='black', bg='white')
-        # self.air2Lbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-        # self.updating_A2.pack(padx = 2, pady = 2, side = tk.RIGHT)
+        # Pitch
+        self.pitchval = tk.DoubleVar()
+        self.pitchval.set(0.0)
+        self.pitch = tk.Label(self, text="Pitch", textvariable=self.pitchval, fg='black', bg='white')
+        self.pitchLbl = tk.Label(self, text="Pitch: ", fg='black', bg='white')
+        self.pitchLbl.grid(row=8, column=0)
+        self.pitch.grid(row=8, column=1)
 
-        # Power (Wattage)
-        self.updating_watint = tk.IntVar()
-        self.updating_watint.set(0)
-        self.updating_wat = tk.Label(self, text="Power (Wattage)", textvariable=self.updating_watint, fg='black', bg='white')
-        # # self.updating_A1.pack()
-        self.wattageLbl = tk.Label(self, text="Power (Wattage): ", fg='black', bg='white')
-        # # self.air1Lbl.pack(padx = 5, pady = 5, side = tk.RIGHT)
-        # # self.updating_A1.pack(padx = 2, pady = 2, side = tk.RIGHT)
+        # Yaw
+        self.yawval = tk.DoubleVar()
+        self.yawval.set(0.0)
+        self.yaw = tk.Label(self, text="Yaw", textvariable=self.yawval, fg='black', bg='white')
+        self.yawLbl = tk.Label(self, text="Yaw: ", fg='black', bg='white')
+        self.yawLbl.grid(row=9, column=0)
+        self.yaw.grid(row=9, column=1)
 
-        self.positionLbl.grid(row=0, column=0)
-        self.updating_pos.grid(row=0, column=1)
+        # Amperage 1
+        self.amp1val = tk.DoubleVar()
+        self.amp1val.set(0.0)
+        self.amp1 = tk.Label(self, text="Amperage 1", textvariable=self.amp1val, fg='black', bg='white')
+        self.amp1Lbl = tk.Label(self, text="Amperage 1: ", fg='black', bg='white')
+        self.amp1Lbl.grid(row=10, column=0)
+        self.amp1.grid(row=10, column=1)
 
-        # self.heightLbl2.grid(row=0, column=0)
-        # self.updating_lbl2.grid(row=0, column=1)
+        # Amperage 2
+        self.amp2val = tk.DoubleVar()
+        self.amp2val.set(0.0)
+        self.amp2 = tk.Label(self, text="Amperage 2 ", textvariable=self.amp2val, fg='black', bg='white')
+        self.amp2Lbl = tk.Label(self, text="Amperage 2: ", fg='black', bg='white')
+        self.amp2Lbl.grid(row=11, column=0)
+        self.amp2.grid(row=11, column=1)
 
-        self.RollLbl.grid(row=1, column=0)
-        self.updating_rollLbl.grid(row=1, column=1)
+        # Voltage 1
+        self.volt1val = tk.DoubleVar()
+        self.volt1val.set(0.0)
+        self.volt1 = tk.Label(self, text="Voltage 1", textvariable=self.volt1val, fg='black', bg='white')
+        self.volt1Lbl = tk.Label(self, text="Voltage 1: ", fg='black', bg='white')
+        self.volt1Lbl.grid(row=12, column=0)
+        self.volt1.grid(row=12, column=1)
 
-        self.PitchLbl.grid(row=2, column=0)
-        self.updating_pitchLbl.grid(row=2, column=1)
+        # Voltage 2
+        self.volt2val = tk.DoubleVar()
+        self.volt2val.set(0.0)
+        self.volt2 = tk.Label(self, text="Voltage 2", textvariable=self.volt2val, fg='black', bg='white')
+        self.volt2Lbl = tk.Label(self, text="Voltage 2: ", fg='black', bg='white')
+        self.volt2Lbl.grid(row=13, column=0)
+        self.volt2.grid(row=13, column=1)
 
-        self.YawLbl.grid(row=3, column=0)
-        self.updating_yawLbl.grid(row=3, column=1)
+        # Temperature Ambient
+        self.tempAmbVal = tk.DoubleVar()
+        self.tempAmbVal.set(0.0)
+        self.tempAmb = tk.Label(self, text="Temperature Ambient", textvariable=self.tempAmbVal, fg='black', bg='white')
+        self.tempAmbLbl = tk.Label(self, text="Ambient Temperature: ", fg='black', bg='white')
+        self.tempAmbLbl.grid(row=14, column=0)
+        self.tempAmb.grid(row=14, column=1)
 
-        self.AxLbl.grid(row=4, column=0)
-        self.updating_axLbl.grid(row=4, column=1)
+        # Temperature Battery 1
+        self.tempBatt1Val = tk.DoubleVar()
+        self.tempBatt1Val.set(0.0)
+        self.tempBatt1 = tk.Label(self, text="Temperature Battery 1", textvariable=self.tempBatt1Val, fg='black', bg='white')
+        self.tempBatt1Lbl = tk.Label(self, text="Battery 1 Temperature: ", fg='black', bg='white')
+        self.tempBatt1Lbl.grid(row=15, column=0)
+        self.tempBatt1.grid(row=15, column=1)
 
-        self.AyLbl.grid(row=5, column=0)
-        self.updating_ayLbl.grid(row=5, column=1)
+        # Temperature Battery 2
+        self.tempBatt2Val = tk.DoubleVar()
+        self.tempBatt2Val.set(0.0)
+        self.tempBatt2 = tk.Label(self, text="Temperature Battery 2", textvariable=self.tempBatt2Val, fg='black', bg='white')
+        self.tempBatt2Lbl = tk.Label(self, text="Battery 2 Temperature: ", fg='black', bg='white')
+        self.tempBatt2Lbl.grid(row=16, column=0)
+        self.tempBatt2.grid(row=16, column=1)
 
-        self.AzLbl.grid(row=6, column=0)
-        self.updating_azLbl.grid(row=6, column=1)
-
-        self.VxLbl.grid(row = 7, column = 0)
-        self.updating_vxLbl.grid(row = 7, column = 1)
-
-        self.VyLbl.grid(row = 8, column = 0)
-        self.updating_vyLbl.grid(row = 8, column = 1)
-
-        self.VzLbl.grid(row = 9, column = 0)
-        self.updating_vzLbl.grid(row = 9, column = 1)
-
-        self.LightLbl.grid(row=10, column=0)
-        self.updating_lLbl.grid(row=10, column=1)
-
-        self.temp1Lbl.grid(row=0, column=5)
-        self.updating_temp1.grid(row=0, column=6)
-
-        self.temp2Lbl.grid(row=1, column=5)
-        self.updating_temp2.grid(row=1, column=6)
-
-        self.voltageLbl.grid(row=2, column=5)
-        self.updating_volt.grid(row=2, column=6)
-
-        self.wattageLbl.grid(row=3, column=5)
-        self.updating_wat.grid(row=3, column=6)
-
-        # if connect == 1:
-        #     self.counter = Process(target=count, args=(
-        #     self.child_pipe, self.child1_pipe, self.child2_pipe, self.child3_pipe, self.child4_pipe,
-        #     self.child5_pipe, self.child6_pipe, self.child7_pipe, self.child8_pipe, self.child9_pipe,
-        #     self.child10_pipe, self.child11_pipe, self.child12_pipe, self.child13_pipe, self.child14_pipe,
-        #     self.child15_pipe, parent, self.stop_event))
-        #     self.counter.start()
-        #     self.update()
 
     def update(self):
-        self.updating_posint.set(parent9_pipe.recv())
-        self.updating_roll.set(parent3_pipe.recv())
-        self.updating_pitch.set(parent4_pipe.recv())
-        self.updating_yaw.set(parent5_pipe.recv())
-        self.updating_ax.set(parent0_pipe.recv())
-        self.updating_ay.set(parent1_pipe.recv())
-        self.updating_az.set(parent2_pipe.recv())
-        self.updating_vx.set(parent6_pipe.recv())
-        self.updating_vy.set(parent7_pipe.recv())
-        self.updating_vz.set(parent8_pipe.recv())
-        self.updating_l.set(parent10_pipe.recv())
-        self.updating_temp1int.set(parent11_pipe.recv())
-        self.updating_temp2int.set(parent12_pipe.recv())
-        self.updating_voltint.set(parent13_pipe.recv())
-        self.updating_watint.set(parent14_pipe.recv())
+        global state
+        state = parent0_pipe.recv()
+        self.timeint.set(parent1_pipe.recv())
+        self.tapeCountInt.set(parent2_pipe.recv())
+        self.posval.set(parent3_pipe.recv())
+        self.accelval.set(parent4_pipe.recv())
+        self.vxval.set(parent5_pipe.recv())
+        self.vyval.set(parent6_pipe.recv())
+        self.vzval.set(parent7_pipe.recv())
+        self.rollval.set(parent8_pipe.recv())
+        self.pitchval.set(parent9_pipe.recv())
+        self.yawval.set(parent10_pipe.recv())
+        self.amp1val.set(parent11_pipe.recv())
+        self.amp2val.set(parent12_pipe.recv())
+        self.volt1val.set(parent13_pipe.recv())
+        self.volt2val.set(parent14_pipe.recv())
+        self.tempAmbVal.set(parent15_pipe.recv())
+        self.tempBatt1Val.set(parent16_pipe.recv())
+        self.tempBatt2Val.set(parent17_pipe.recv())
+
 
         # self.parent.after(100, self.update)
 
