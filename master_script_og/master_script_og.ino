@@ -8,17 +8,17 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Wire.requestFrom(2,4); // request 4 bytes from slave 2
-  char tempIn[4] = {0,0,0,0};
-  if (Wire.available() <= 4){   // check if 4 bytes are available
-    for (byte i = 0; i < 4; i++){
-      char byteIn = Wire.read();    // receive byte as an integer
-      tempIn[i] = byteIn;
-      Serial.print(byteIn);
+  Wire.requestFrom(2, 1); // request 4 bytes from slave 2
+  byte tempAmbientDataSize = 0;
+  if (Wire.available() <= 1){
+    tempAmbientDataSize = Wire.read();
+  }
+  Wire.requestFrom(2, tempAmbientDataSize);
+  char tempAmbient[tempAmbientDataSize];
+  if (Wire.available() <= tempAmbientDataSize){
+    for (byte i = 0; i < tempAmbientDataSize; i++){
+      tempAmbient[i] = Wire.read();
     }
-    Serial.println();
-//    Serial.print("tempIn: ");
-//    Serial.println(tempIn);
   }
   
   else {

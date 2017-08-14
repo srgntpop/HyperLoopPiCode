@@ -22,12 +22,13 @@ void loop() {
   // actuator x 6: 4 * 6 = 24
   // ------------------------
   // total Bytes = 44; --> padded to 44
-  char finalData[44];
-  memset(finalData, 0, sizeof(finalData));
+  
+//  char finalData[44];
+//  memset(finalData, 0, sizeof(finalData));
 
   // request temperature data 
   Wire.requestFrom(2, 1);
-  if (Wire.available() <= 1){
+  if (Wire.available() <= 4){
     byte dataSize2 = Wire.read();
   }
   Wire.requestFrom(2, dataSize2); // request 4 bytes from slave 2
